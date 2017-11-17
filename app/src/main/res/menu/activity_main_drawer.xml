@@ -17,9 +17,9 @@
             android:icon="@drawable/ic_menu_slideshow"
             android:title="Counter Observable &amp; Subscriber" />
         <item
-            android:id="@+id/nav_manage"
+            android:id="@+id/nav_subject"
             android:icon="@drawable/ic_menu_manage"
-            android:title="Tarda mucho IO" />
+            android:title="Counter Subject" />
     </group>
 
     <item android:title="Communicate">

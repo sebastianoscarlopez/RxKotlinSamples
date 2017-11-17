@@ -11,18 +11,23 @@ import android.view.Menu
 import android.view.MenuItem
 import io.reactivex.*
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.functions.Consumer
+import io.reactivex.disposables.Disposable
+import io.reactivex.internal.util.HalfSerializer
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.rxkotlin.toObservable
 import io.reactivex.schedulers.Schedulers
+import io.reactivex.subjects.*
+
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import org.reactivestreams.Subscriber
-import org.reactivestreams.Subscription
+import java.util.concurrent.TimeUnit
+import java.util.function.Consumer
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
+//    private lateinit var subject: PublishSubject<Int>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -75,7 +80,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 counter()
             }
             R.id.nav_CounterDefer -> {
-                counterDefer()
+                Observable.defer { Observable.just(counter()) }
                         .subscribeOn(Schedulers.io()) // Equals to a simple call whether AndroidSchedulers.mainThread() is used
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe()
@@ -94,8 +99,23 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         onComplete = { Log.d("cuenta", "onComplete") }
                     )
             }
-            R.id.nav_manage -> {
+            R.id.nav_subject -> {
+                val subject = PublishSubject.create<Int>()
 
+                subject
+                        .doOnNext {
+                            txtContent.text = it.toString()
+                        }
+                        .subscribe()
+
+                (1..10000000)
+                        .toObservable()
+                        .sample(500, TimeUnit.MILLISECONDS)
+                        .subscribeOn(Schedulers.io()) // Equals to a simple call whether AndroidSchedulers.mainThread() is used
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .forEach({
+                            subject.onNext(it)
+                        })
             }
             R.id.nav_share -> {
 
@@ -107,10 +127,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         drawer_layout.closeDrawer(GravityCompat.START)
         return true
-    }
-
-    private fun counterDefer(): Observable<Int> {
-        return Observable.defer { Observable.just(counter()) }
     }
 
     private fun counter() : Int {
