@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
-    <group android:checkableBehavior="single">
+    <group android:checkableBehavior="single" android:title="Reactive - RxJava2">
         <item
             android:id="@+id/nav_Counter"
             android:icon="@drawable/ic_menu_camera"
@@ -22,12 +22,12 @@
             android:title="Counter Subject" />
     </group>
 
-    <item android:title="Communicate">
+    <item android:title="Retrofit + Rx">
         <menu>
             <item
-                android:id="@+id/nav_share"
+                android:id="@+id/nav_gitHubUser"
                 android:icon="@drawable/ic_menu_share"
-                android:title="Share" />
+                android:title="Retrofit get Github User" />
             <item
                 android:id="@+id/nav_send"
                 android:icon="@drawable/ic_menu_send"

@@ -13,17 +13,25 @@ import io.reactivex.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.internal.util.HalfSerializer
+import io.reactivex.rxkotlin.Observables
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.rxkotlin.toObservable
+import io.reactivex.rxkotlin.toSingle
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.*
 
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
+import org.reactivestreams.Publisher
 import org.reactivestreams.Subscriber
+import retrofit2.Call
 import java.util.concurrent.TimeUnit
 import java.util.function.Consumer
+import retrofit2.Retrofit
+import retrofit2.adapter.rxjava2.Result
+import retrofit2.converter.gson.GsonConverterFactory
+
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -117,8 +125,21 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             subject.onNext(it)
                         })
             }
-            R.id.nav_share -> {
+            R.id.nav_gitHubUser -> {
+                val apiService = GithubApiService.create()
+                apiService.listRepos("sebastianoscarlopez")
+                        .flatMap { Observable.fromIterable(it) }
+                        .concatMap { Observable.just(it).delay(500, TimeUnit.MILLISECONDS) }
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe ({
+                            result ->
+                            Log.d("Result", "Repos: ${result?.name}")
 
+                            txtContent.text = result?.name ?: ""
+                        }, { error ->
+                            error.printStackTrace()
+                        })
             }
             R.id.nav_send -> {
 
